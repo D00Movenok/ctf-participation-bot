@@ -9,7 +9,7 @@ class Event(Base):
 
     team_id = Column(Integer, primary_key=True)
     event_id = Column(Integer, primary_key=True)
-    poll_id = Column(Integer)
+    poll_id = Column(Integer, nullable=False)
     start_time = Column(DateTime, nullable=False)
 
     done = Column(Boolean)
