@@ -13,3 +13,11 @@ class Event(Base):
     start_time = Column(DateTime, nullable=False)
 
     done = Column(Boolean)
+
+
+class Voter(Base):
+    __tablename__ = 'voter'
+
+    user_id = Column(Integer, primary_key=True)
+    poll_id = Column(Integer, nullable=False)
+    will_play = Column(Boolean)
