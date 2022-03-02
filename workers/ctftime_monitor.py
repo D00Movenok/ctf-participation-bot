@@ -71,11 +71,15 @@ class CtftimeMonitor:
         url = f'https://ctftime.org/api/v1/events/{event_id}/'
         resp = requests.get(url, headers=self._headers)
         json = resp.json()
+        title = json['event_name']
         start_time = datetime.fromisoformat(json['start'])
+        end_time = datetime.fromisoformat(json['finish'])
         return Event(
+            id=event_id,
             team_id=team_id,
-            event_id=event_id,
             poll_id=poll_id,
+            title=title,
             start_time=start_time,
+            end_time=end_time,
             done=start_time < datetime.now(timezone.utc),
         )
