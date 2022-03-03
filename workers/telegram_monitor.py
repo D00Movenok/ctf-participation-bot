@@ -2,7 +2,7 @@ import threading
 
 from sqlalchemy import insert
 from telegram import Update
-from telegram.ext import Updater, PollAnswerHandler, CallbackContext
+from telegram.ext import CallbackContext, PollAnswerHandler, Updater
 
 from common.database import session
 from common.models import Voter

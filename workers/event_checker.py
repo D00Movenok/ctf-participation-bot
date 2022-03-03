@@ -1,13 +1,13 @@
 import threading
+import time
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, update, func, column
+from sqlalchemy import column, func, select, update
 
-from common.models import Event, Voter
-from common.database import session
-from config import config
 from actions.discord_create import create_discord_channels
-import time
+from common.database import session
+from common.models import Event, Voter
+from config import config
 
 
 class EventChecker:
@@ -16,11 +16,10 @@ class EventChecker:
 
     def __monitor_cycle(self):
         while True:
-            self.check()
+            self.__check()
             time.sleep(60)
 
-    def check(self):
-        print(datetime.now())
+    def __check(self):
         with session.begin() as local_session:
             subquery = select(Voter.poll_id).\
                 where(Voter.will_play == True).\
@@ -36,4 +35,7 @@ class EventChecker:
             for x in result:
                 create_discord_channels(x)
                 x.done = True
-
+            query = update(Event).\
+                where(Event.start_time <= datetime.now()).\
+                values(done=True)
+            local_session.execute(query)
