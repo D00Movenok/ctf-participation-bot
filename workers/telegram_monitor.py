@@ -1,3 +1,5 @@
+import threading
+
 from sqlalchemy import insert
 from telegram import Update
 from telegram.ext import Updater, PollAnswerHandler, CallbackContext
@@ -12,8 +14,10 @@ class TelegramMonitor:
     updater = Updater(token)
     dispatcher = updater.dispatcher
 
-
     def start(self):
+        threading.Thread(target=self.__monitor_cycle).start()
+
+    def __monitor_cycle(self):
         self.dispatcher.add_handler(PollAnswerHandler(self.monitor_poll_answer))
         self.updater.start_polling()
 

@@ -19,5 +19,5 @@ class Voter(Base):
     __tablename__ = 'voter'
 
     user_id = Column(Integer, primary_key=True)
-    poll_id = Column(Integer, nullable=False)
+    poll_id = Column(Integer, nullable=False, primary_key=True)
     will_play = Column(Boolean)
