@@ -26,6 +26,6 @@ class TelegramMonitor:
         poll_id = answer.poll_id
         user_id = answer.user.id
         option = answer.option_ids[0]
-        query = insert(Voter).values(user_id=user_id, poll_id=poll_id, will_play=(True if option == 0 else False))
+        query = insert(Voter).values(user_id=user_id, poll_id=poll_id, will_play=(not option))
         with session.begin() as local_session:
             local_session.execute(query)
