@@ -1,3 +1,4 @@
+import threading
 from datetime import datetime
 
 from sqlalchemy import select, update
@@ -5,6 +6,7 @@ from sqlalchemy import select, update
 from common.models import Event, Voter
 from common.database import engine
 from config import config
+from actions.discord_create import create_discord_channels
 import time
 
 
@@ -12,6 +14,9 @@ class EventChecker:
     conn = engine.connect()
 
     def start(self):
+        threading.Thread(target=self.__monitor_cycle).start()
+
+    def __monitor_cycle(self):
         while True:
             self.check()
             time.sleep(60)
@@ -29,7 +34,7 @@ class EventChecker:
             for row in res2:
                 arr.append(row)
             if len(arr) >= config['min_will_play']:
-                query3 = (update(Event).where(Event.poll_id == poll_id).values(done=True))
-                self.conn.execute(query3)
+                query3 = (update(Event).returning(Event).where(Event.poll_id == poll_id).values(done=True))
+                create_discord_channels(self.conn.execute(query3))
         query4 = (update(Event).where(Event.start_time > datetime.now()).values(done=True))
         self.conn.execute(query4)
