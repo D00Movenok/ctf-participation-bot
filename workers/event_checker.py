@@ -1,7 +1,7 @@
 import threading
 from datetime import datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import select, update, func
 
 from common.models import Event, Voter
 from common.database import session
@@ -21,21 +21,16 @@ class EventChecker:
 
     def check(self):
         with session.begin() as local_session:
-            query = select(Voter.poll_id)
+            query = select(
+                Voter.poll_id,
+                func.count(Voter.user_id).label("count")
+            ).where(Voter.will_play == True).group_by(Voter.poll_id)
             result = local_session.execute(query)
-            unique_arr = set()
             for row in result:
-                unique_arr.add(row[0])
-            for poll_id in unique_arr:
-                query = select(Voter).where(Voter.poll_id == poll_id, Voter.will_play == True)
-                result = local_session.execute(query)
-                arr = []
-                for row in result:
-                    arr.append(row)
-                if len(arr) >= config['min_will_play']:
-                    query = (update(Event).where(Event.poll_id == poll_id).values(done=True))
+                if row[1] >= config['min_will_play']:
+                    query = (update(Event).where(Event.poll_id == row[0]).values(done=True))
                     local_session.execute(query)
-                    query = select(Event).where(Event.poll_id == poll_id)
+                    query = select(Event).where(Event.poll_id == row[0])
                     create_discord_channels(local_session.execute(query))
             query = (update(Event).where(Event.start_time < (datetime.now() + timedelta(days=1))).values(done=True))
             local_session.execute(query)
