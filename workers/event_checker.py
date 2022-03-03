@@ -20,13 +20,20 @@ class EventChecker:
             time.sleep(60)
 
     def check(self):
+        print(datetime.now())
         with session.begin() as local_session:
-            subquery = select(Voter.poll_id).where(Voter.will_play == True).group_by(Voter.poll_id).having(func.count(Voter.user_id) >= config['min_will_play'])
-            result = local_session.execute(subquery)
-            create_discord_channels(result)
-            query = update(Event).where(
-                Event.start_time <= (datetime.now() + timedelta(days=1)),
-                column('poll_id').in_(result),
-                Event.done == False,
-            ).values(done=True)
-            local_session.execute(query)
+            subquery = select(Voter.poll_id).\
+                where(Voter.will_play == True).\
+                group_by(Voter.poll_id).\
+                having(func.count(Voter.user_id) >= config['min_will_play'])
+            query = select(Event).\
+                where(
+                    Event.start_time <= (datetime.now() + timedelta(days=1)),
+                    column('poll_id').in_(subquery),
+                    Event.done == False,
+                )
+            result = local_session.scalars(query)
+            for x in result:
+                create_discord_channels(x)
+                x.done = True
+

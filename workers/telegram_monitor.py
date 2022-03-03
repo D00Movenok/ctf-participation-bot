@@ -18,7 +18,8 @@ class TelegramMonitor:
         threading.Thread(target=self.__monitor_cycle).start()
 
     def __monitor_cycle(self):
-        self.dispatcher.add_handler(PollAnswerHandler(self.monitor_poll_answer))
+        self.dispatcher.\
+            add_handler(PollAnswerHandler(self.monitor_poll_answer))
         self.updater.start_polling()
 
     def monitor_poll_answer(self, update: Update, context: CallbackContext):
@@ -26,6 +27,7 @@ class TelegramMonitor:
         poll_id = answer.poll_id
         user_id = answer.user.id
         option = answer.option_ids[0]
-        query = insert(Voter).values(user_id=user_id, poll_id=poll_id, will_play=(not option))
+        query = insert(Voter).\
+            values(user_id=user_id, poll_id=poll_id, will_play=(not option))
         with session.begin() as local_session:
             local_session.execute(query)
