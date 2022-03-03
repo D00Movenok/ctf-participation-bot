@@ -10,9 +10,13 @@ Automatization of the social organization routine of joining a CTF event.
 
 1. Install requirements (also requires Python 3)
 
-    $ pip install -r requirements.txt
+    ```bash
+    $ pip install -r requirements.txt`
+    ```
 
 2. Configure all the options in the `config.py` file
 3. Start
 
-    $ python app.py
+    ```bash
+    $ pip install -r requirements.txt`
+    ```
