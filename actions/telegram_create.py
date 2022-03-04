@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 import pytz
@@ -16,6 +17,8 @@ def get_time_str(date: datetime) -> str:
 
 
 def create_telegram_poll(event: Event) -> int:
+    logging.info(f'Creating telegram poll for {event.title}...')
+
     token = config['tg_token']
     chat_id = config['tg_chat_id']
     bot = Bot(token)

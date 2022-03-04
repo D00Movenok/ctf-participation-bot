@@ -1,3 +1,4 @@
+import logging
 import threading
 import time
 from datetime import datetime, timedelta
@@ -15,6 +16,7 @@ class EventChecker:
         threading.Thread(target=self.__monitor_cycle).start()
 
     def __monitor_cycle(self):
+        logging.info('Event checker starting...')
         while True:
             self.__check()
             time.sleep(60)

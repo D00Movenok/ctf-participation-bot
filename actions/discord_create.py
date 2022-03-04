@@ -25,6 +25,8 @@ def create(type, name, bot_token, guild_id, parent_id=None):
         },
     ).json()
 
+    logging.debug(f'Discord api response: {res}')
+
     if res.get('code', None) == 40001:
         logging.error(
             'Auth error. Check your discord bot token.'
@@ -42,23 +44,23 @@ def create(type, name, bot_token, guild_id, parent_id=None):
 
 
 def create_discord_channels(event: Event):
-    logging.info(f'Creating discord event {event.id}...')
+    logging.info(f'Creating discord event {event.title}...')
 
     bot_token = config['ds_token']
     guild_id = config['ds_srv_id']
     text_channels = config['text_channels']
     voice_channels = config['voice_channels']
 
-    logging.debug(f'Creating category for event {event.id}...')
+    logging.debug(f'Creating category for event {event.title}...')
     category_info = create('category', event.title, bot_token, guild_id)
     category_id = category_info['id']
 
     for channel in text_channels:
         logging.debug(f'Creating text channel {channel} '
-                      f'for event {event.id}...')
+                      f'for event {event.title}...')
         create('text', channel, bot_token, guild_id, category_id)
 
     for channel in voice_channels:
         logging.debug(f'Creating voice channel {channel} '
-                      f'for event {event.id}...')
+                      f'for event {event.title}...')
         create('voice', channel, bot_token, guild_id, category_id)

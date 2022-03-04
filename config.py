@@ -26,4 +26,7 @@ config = {
 
     # For dates in poll
     'timezone': 'Europe/Moscow',
+
+    # Enables DEBUG logging
+    'DEBUG': False,
 }

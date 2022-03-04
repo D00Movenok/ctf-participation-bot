@@ -1,6 +1,7 @@
+import logging
 import threading
 
-from sqlalchemy import insert, delete
+from sqlalchemy import delete, insert
 from telegram import Update
 from telegram.ext import CallbackContext, PollAnswerHandler, Updater
 
@@ -18,12 +19,14 @@ class TelegramMonitor:
         threading.Thread(target=self.__monitor_cycle).start()
 
     def __monitor_cycle(self):
+        logging.info('Telegram monitor starting...')
         self.dispatcher.\
             add_handler(PollAnswerHandler(self.__monitor_poll_answer))
         self.updater.start_polling()
 
     def __monitor_poll_answer(self, update: Update, context: CallbackContext):
         answer = update.poll_answer
+        logging.debug(f'Got new telegram poll vote: {answer}')
         poll_id = answer.poll_id
         user_id = answer.user.id
         if len(answer.option_ids) > 0:

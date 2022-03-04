@@ -24,7 +24,7 @@ class CtftimeMonitor:
                              args=(team_id, )).start()
 
     def __monitor_cycle(self, team_id):
-        logging.info(f'Monitoring thread for CTFTime team {team_id} started')
+        logging.info(f'CTFTime monitoring for team {team_id} starting...')
         while True:
             self.__check_team(team_id)
             time.sleep(60)
@@ -46,6 +46,7 @@ class CtftimeMonitor:
     def __get_team_events(self, team_id):
         url = f'https://ctftime.org/team/{team_id}'
         resp = requests.get(url, headers=self._headers)
+        self.__check_response(resp)
         return resp.text
 
     def __parse_events(self, content):
@@ -69,6 +70,7 @@ class CtftimeMonitor:
     def __create_event_obj(self, team_id, event_id):
         url = f'https://ctftime.org/api/v1/events/{event_id}/'
         resp = requests.get(url, headers=self._headers)
+        self.__check_response(resp)
         json = resp.json()
         title = json['title']
         start_time = datetime.fromisoformat(json['start'])
@@ -81,3 +83,11 @@ class CtftimeMonitor:
             end_time=end_time,
             done=start_time < datetime.now(timezone.utc),
         )
+
+    def __check_response(self, response):
+        if response.status_code != 200 or \
+           'Why do I have to complete a CAPTCHA?' in response.text:
+            logging.error(
+                f'Something wrong, response status code: '
+                f'{response.status_code}\n{response.text}'
+            )
