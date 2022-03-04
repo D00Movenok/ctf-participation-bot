@@ -1,15 +1,15 @@
 config = {
     # Telegram API token
-    'tg_token': '1601573862:AAEn8aazkpjCthdDLpv2LJ2ZByKorYLRSxk',
+    'tg_token': '',
     # Telegram chat ID
-    'tg_chat_id': -406323264,
+    'tg_chat_id': 123,
     # The lowest acceptable amount of people to participate in an event
     'min_will_play': 1,
 
     # Discord API token
-    'ds_token': 'ODM1ODgxNzE4NDQyNzU0MDU4.YIV5gw.qjCAU1cdZ7-wzGeySzBZLMGz1Pg',
+    'ds_token': '',
     # Discord server ID
-    'ds_srv_id': 835956840910946325,
+    'ds_srv_id': 123,
     # The names of the text channels you want to generate
     'text_channels': [
         'web', 'rev',
@@ -21,7 +21,7 @@ config = {
 
     # IDs of your teams on CTFTime
     'ctf_teams': [
-        142772,
+        1,2,3
     ],
 
     # For dates in poll

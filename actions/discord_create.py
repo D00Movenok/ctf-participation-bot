@@ -54,9 +54,11 @@ def create_discord_channels(event: Event):
     category_id = category_info['id']
 
     for channel in text_channels:
-        logging.debug(f'Creating text channel {channel} for event {event.id}...')
+        logging.debug(f'Creating text channel {channel} '
+                      f'for event {event.id}...')
         create('text', channel, bot_token, guild_id, category_id)
 
     for channel in voice_channels:
-        logging.debug(f'Creating voice channel {channel} for event {event.id}...')
+        logging.debug(f'Creating voice channel {channel} '
+                      f'for event {event.id}...')
         create('voice', channel, bot_token, guild_id, category_id)

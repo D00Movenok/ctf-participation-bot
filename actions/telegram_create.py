@@ -35,4 +35,4 @@ def create_telegram_poll(event: Event) -> int:
         is_anonymous=False,
     )
 
-    return message.message_id
+    return message.poll.id
