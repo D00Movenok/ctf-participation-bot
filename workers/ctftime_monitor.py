@@ -39,9 +39,8 @@ class CtftimeMonitor:
             event_queue = []
             for event_id in new_event_ids:
                 logging.info(f'Found new event {event_id} for team {team_id}')
-                poll_id = create_telegram_poll(event_id)
-                event_queue.append(self.__create_event_obj(team_id, event_id,
-                                                           poll_id))
+                event_queue.append(self.__create_event_obj(team_id, event_id))
+                event_queue[-1].poll_id = create_telegram_poll(event_queue[-1])
             local_session.add_all(event_queue)
 
     def __get_team_events(self, team_id):
@@ -62,22 +61,21 @@ class CtftimeMonitor:
         return event_ids
 
     def __filter_existing_events(self, local_session, event_ids):
-        query = select(Event.event_id).where(Event.event_id.in_(event_ids))
+        query = select(Event.id).where(Event.id.in_(event_ids))
         for existing_event in local_session.execute(query):
-            event_ids.remove(existing_event.event_id)
+            event_ids.remove(existing_event.id)
         return event_ids
 
-    def __create_event_obj(self, team_id, event_id, poll_id):
+    def __create_event_obj(self, team_id, event_id):
         url = f'https://ctftime.org/api/v1/events/{event_id}/'
         resp = requests.get(url, headers=self._headers)
         json = resp.json()
-        title = json['event_name']
+        title = json['title']
         start_time = datetime.fromisoformat(json['start'])
         end_time = datetime.fromisoformat(json['finish'])
         return Event(
             id=event_id,
             team_id=team_id,
-            poll_id=poll_id,
             title=title,
             start_time=start_time,
             end_time=end_time,
