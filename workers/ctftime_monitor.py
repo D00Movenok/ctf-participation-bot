@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from sqlalchemy import select
 
-from actions.telegram_create import create_telegram_poll
+from actions.telegram import create_telegram_poll
 from common.database import session
 from common.models import Event
 from config import config

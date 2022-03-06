@@ -1,2 +1,2 @@
-from .discord_create import create_discord_channels
-from .telegram_create import create_telegram_poll
+from .discord import create_discord_event
+from .telegram import create_telegram_poll

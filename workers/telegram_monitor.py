@@ -26,9 +26,10 @@ class TelegramMonitor:
 
     def __monitor_poll_answer(self, update: Update, context: CallbackContext):
         answer = update.poll_answer
-        logging.debug(f'Got new telegram poll vote: {answer}')
         poll_id = answer.poll_id
         user_id = answer.user.id
+        logging.info(f'Got new telegram poll vote from user {user_id}: '
+                     f'{answer}')
         if len(answer.option_ids) > 0:
             option = answer.option_ids[0]
             query = insert(Voter).\

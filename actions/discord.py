@@ -6,9 +6,10 @@ from common.models import Event
 from config import config
 
 
-def create(type, name, bot_token, guild_id, parent_id=None):
+def create_discord(type, name, bot_token, guild_id, parent_id=None):
     if type == 'category':
-        json_request = {'name': name, 'type': 4}
+        pos = config['ds_ins_position']
+        json_request = {'name': name, 'type': 4, 'position': pos}
     elif type == 'text':
         json_request = {'name': name, 'type': 0, 'parent_id': parent_id}
     elif type == 'voice':
@@ -43,24 +44,25 @@ def create(type, name, bot_token, guild_id, parent_id=None):
     return res
 
 
-def create_discord_channels(event: Event):
+def create_discord_event(event: Event):
     logging.info(f'Creating discord event {event.title}...')
 
     bot_token = config['ds_token']
     guild_id = config['ds_srv_id']
-    text_channels = config['text_channels']
-    voice_channels = config['voice_channels']
+    text_channels = ['general'] + config['ds_text_channels']
+    voice_channels = config['ds_voice_channels']
 
     logging.debug(f'Creating category for event {event.title}...')
-    category_info = create('category', event.title, bot_token, guild_id)
+    category_info = create_discord('category', event.title, bot_token,
+                                   guild_id)
     category_id = category_info['id']
 
     for channel in text_channels:
         logging.debug(f'Creating text channel {channel} '
                       f'for event {event.title}...')
-        create('text', channel, bot_token, guild_id, category_id)
+        create_discord('text', channel, bot_token, guild_id, category_id)
 
     for channel in voice_channels:
         logging.debug(f'Creating voice channel {channel} '
                       f'for event {event.title}...')
-        create('voice', channel, bot_token, guild_id, category_id)
+        create_discord('voice', channel, bot_token, guild_id, category_id)

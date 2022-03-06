@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import column, func, select, update
 
-from actions.discord_create import create_discord_channels
+from actions.discord import create_discord_event
 from common.database import session
 from common.models import Event, Voter
 from config import config
@@ -22,22 +22,29 @@ class EventChecker:
             time.sleep(60)
 
     def __check(self):
+        logging.debug('Сhecking events for readiness...')
         with session.begin() as local_session:
-            subquery = select(Voter.poll_id).\
-                where(Voter.will_play == True).\
-                group_by(Voter.poll_id).\
-                having(func.count(Voter.user_id) >= config['min_will_play'])
-            query = select(Event).\
-                where(
-                    Event.start_time <= (datetime.now() + timedelta(days=1)),
-                    column('poll_id').in_(subquery),
-                    Event.done == False,
-                )
-            result = local_session.scalars(query)
-            for x in result:
-                create_discord_channels(x)
-                x.done = True
-            query = update(Event).\
-                where(Event.start_time <= datetime.now()).\
-                values(done=True)
-            local_session.execute(query)
+            self.__check_ready(local_session)
+            self.__check_started(local_session)
+
+    def __check_ready(self, local_session):
+        subquery = select(Voter.poll_id).\
+            where(Voter.will_play == True).\
+            group_by(Voter.poll_id).\
+            having(func.count(Voter.user_id) >= config['min_will_play'])
+        query = select(Event).\
+            where(
+                Event.start_time <= (datetime.now() + timedelta(days=1)),
+                column('poll_id').in_(subquery),
+                Event.done == False,
+            )
+        result = local_session.scalars(query)
+        for x in result:
+            create_discord_event(x)
+            x.done = True
+
+    def __check_started(self, local_session):
+        query = update(Event).\
+            where(Event.start_time <= datetime.now()).\
+            values(done=True)
+        local_session.execute(query)
