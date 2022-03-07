@@ -3,15 +3,19 @@ import threading
 import time
 from datetime import datetime, timedelta
 
-from sqlalchemy import column, func, select, update
+from sqlalchemy import column, func, select
 
-from actions.discord import create_discord_event
+from actions.discord import Discord
+from actions.telegram import Telegram
 from common.database import session
 from common.models import Event, Voter
 from config import config
 
 
 class EventChecker:
+    _tg_bot = Telegram()
+    _discord_bot = Discord()
+
     def start(self):
         threading.Thread(target=self.__monitor_cycle).start()
 
@@ -39,12 +43,17 @@ class EventChecker:
                 Event.done == False,
             )
         result = local_session.scalars(query)
-        for x in result:
-            create_discord_event(x)
-            x.done = True
+        for event in result:
+            self._discord_bot.create_event(event)
+            event.done = True
 
     def __check_started(self, local_session):
-        query = update(Event).\
-            where(Event.start_time <= datetime.now()).\
-            values(done=True)
-        local_session.execute(query)
+        query = select(Event).\
+            where(Event.start_time <= datetime.now())
+        result = local_session.scalars(query)
+        for event in result:
+            if event.message_id is not None and event.chat_id is not None and\
+               event.pinned:
+                self._tg_bot.unpin_message(event.chat_id, event.message_id)
+                event.pinned = False
+            event.done = True

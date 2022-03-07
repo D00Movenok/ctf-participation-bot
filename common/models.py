@@ -14,7 +14,12 @@ class Event(Base):
     start_time = Column(DateTime, nullable=False)
     end_time = Column(DateTime, nullable=False)
 
-    done = Column(Boolean)
+    # additional data for pinning
+    chat_id = Column(Integer)
+    message_id = Column(Integer)
+    pinned = Column(Boolean, default=False)
+
+    done = Column(Boolean, default=False)
 
 
 class Voter(Base):

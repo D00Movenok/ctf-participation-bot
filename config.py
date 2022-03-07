@@ -3,6 +3,8 @@ config = {
     'tg_token': '',
     # Telegram chat ID
     'tg_chat_id': 123,
+    # Pin telegram poll
+    'tg_pin': True,
     # The lowest acceptable amount of people to participate in an event
     'min_will_play': 4,
 

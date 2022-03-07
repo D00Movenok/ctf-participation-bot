@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 from sqlalchemy import select
 
-from actions.telegram import create_telegram_poll
+from actions.telegram import Telegram
 from common.database import session
 from common.models import Event
 from config import config
@@ -17,6 +17,7 @@ class CtftimeMonitor:
     _headers = {
         'User-Agent': 'curl/7.68.0'
     }
+    _tg_bot = Telegram()
 
     def start(self):
         for team_id in config['ctf_teams']:
@@ -39,8 +40,9 @@ class CtftimeMonitor:
             event_queue = []
             for event_id in new_event_ids:
                 logging.info(f'Found new event {event_id} for team {team_id}')
-                event_queue.append(self.__create_event_obj(team_id, event_id))
-                event_queue[-1].poll_id = create_telegram_poll(event_queue[-1])
+                event = self.__create_event_obj(team_id, event_id)
+                self.__create_telegram_poll(event)
+                event_queue.append(event)
             local_session.add_all(event_queue)
 
     def __get_team_events(self, team_id):
@@ -83,6 +85,16 @@ class CtftimeMonitor:
             end_time=end_time,
             done=start_time < datetime.now(timezone.utc),
         )
+
+    def __create_telegram_poll(self, event):
+        message = self._tg_bot.create_poll(event)
+        event.poll_id = message.poll.id
+        if config['tg_pin']:
+            self._tg_bot.pin_message(message.chat_id,
+                                     message.message_id)
+            event.chat_id = message.chat_id
+            event.message_id = message.message_id
+            event.pinned = True
 
     def __check_response(self, response):
         if response.status_code != 200 or \
