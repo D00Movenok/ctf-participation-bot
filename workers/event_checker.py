@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta
 
 from sqlalchemy import column, func, select
+from sqlalchemy.orm import SessionTransaction
 
 from actions.discord import Discord
 from actions.telegram import Telegram
@@ -31,7 +32,7 @@ class EventChecker:
             self.__check_ready(local_session)
             self.__check_started(local_session)
 
-    def __check_ready(self, local_session):
+    def __check_ready(self, local_session: SessionTransaction):
         subquery = select(Voter.poll_id).\
             where(Voter.will_play == True).\
             group_by(Voter.poll_id).\
@@ -47,12 +48,12 @@ class EventChecker:
             self._discord_bot.create_event(event)
             event.done = True
 
-    def __check_started(self, local_session):
+    def __check_started(self, local_session: SessionTransaction):
         query = select(Event).\
             where(Event.start_time <= datetime.now())
         result = local_session.scalars(query)
         for event in result:
-            if event.message_id is not None and event.chat_id is not None and\
+            if event.message_id is not None and event.chat_id is not None and \
                event.pinned:
                 self._tg_bot.unpin_message(event.chat_id, event.message_id)
                 event.pinned = False

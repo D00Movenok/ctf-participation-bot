@@ -21,11 +21,11 @@ class Telegram:
             strftime(datetime_format)
 
     def pin_message(self, chat_id: int, message_id: int):
-        logging.info(f'Pinning telegram poll...')
+        logging.info('Pinning telegram poll...')
         self.bot.pin_chat_message(chat_id, message_id)
 
     def unpin_message(self, chat_id: int, message_id: int):
-        logging.info(f'Unpinning telegram poll...')
+        logging.info('Unpinning telegram poll...')
         self.bot.unpin_chat_message(chat_id, message_id)
 
     def create_poll(self, event: Event) -> Message:

@@ -11,7 +11,7 @@ class Discord():
         self.token = config['ds_token']
         self.guild_id = config['ds_srv_id']
 
-    def __create(self, type, name, parent_id=None):
+    def __create(self, type: str, name: str, parent_id: int = None) -> dict:
         if type == 'category':
             pos = config['ds_ins_position']
             json_request = {'name': name, 'type': 4, 'position': pos}
@@ -51,8 +51,6 @@ class Discord():
     def create_event(self, event: Event):
         logging.info(f'Creating discord event {event.title}...')
 
-        bot_token = config['ds_token']
-        guild_id = config['ds_srv_id']
         text_channels = ['general'] + config['ds_text_channels']
         voice_channels = config['ds_voice_channels']
 
