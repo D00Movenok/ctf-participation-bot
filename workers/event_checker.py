@@ -39,7 +39,7 @@ class EventChecker:
             having(func.count(Voter.user_id) >= config['min_will_play'])
         query = select(Event).\
             where(
-                Event.start_time <= (datetime.now() + timedelta(days=1)),
+                Event.start_time <= (datetime.utcnow() + timedelta(days=1)),
                 column('poll_id').in_(subquery),
                 Event.done == False,
             )
@@ -50,7 +50,7 @@ class EventChecker:
 
     def __check_started(self, local_session: SessionTransaction):
         query = select(Event).\
-            where(Event.start_time <= datetime.now())
+            where(Event.start_time <= datetime.utcnow())
         result = local_session.scalars(query)
         for event in result:
             if event.message_id is not None and event.chat_id is not None and \
