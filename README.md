@@ -1,3 +1,5 @@
+![logo](img/logo.jpg "logo")
+
 # ✅ CTF participation Telegram Bot
 
 Automatization of the social organization routine of joining a CTF event.
